@@ -1,9 +1,12 @@
 package com.mourat.udemy.demo.rest;
 
+import com.mourat.udemy.demo.StudentErrorResponse;
+import com.mourat.udemy.demo.StudentNotFoundException;
 import com.mourat.udemy.demo.entity.Student;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.annotation.PostConstruct;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,18 +15,48 @@ import java.util.List;
 @RequestMapping("/api")
 public class StudentRestController {
 
+    private List<Student> students;
+
+    @PostConstruct
+    public void initStudents(){
+
+        // initialize the student list
+        students = new ArrayList<>();
+
+        // add 3 students to the student list
+        students.add(new Student("Mourat", "Achoi"));
+        students.add(new Student("Amet", "Amet oglou"));
+        students.add(new Student("Kostas", "Vardakis"));
+
+        System.out.println("Students initialization complete!");
+    }
+
     @GetMapping("/students")
     public List<Student> getStudents(){
 
-        // Initialize an empty list for students
-        List<Student> students = new ArrayList<>();
-
-        // Add 3 students to the list for testing
-        students.add(new Student("Mourat", "Achoi"));
-        students.add(new Student("Kostas", "Vardakis"));
-        students.add(new Student("Seiran", "Osman"));
-
-        // Return list of students - JackSON will convert them to JSON stream!
+        // returns the list of students
         return students;
+    }
+
+    @GetMapping("/students/{studentId}")
+    public Student getStudent(@PathVariable int studentId){
+
+        // check the student id to be valid
+        if(studentId < 0 || studentId >= students.size())
+            throw new StudentNotFoundException("Student not found - " + studentId);
+
+        // find the student with the given id and return
+        return students.get(studentId);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<StudentErrorResponse> handleException(StudentNotFoundException exc){
+        StudentErrorResponse error = new StudentErrorResponse();
+
+        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setMessage(exc.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }
