@@ -1,18 +1,34 @@
 package com.mourat.udemy.employeesdemo.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mourat.udemy.employeesdemo.entity.Employee;
 import com.mourat.udemy.employeesdemo.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 public class EmployeeRESTController {
 
-    @Autowired
+
     private EmployeeService employeeService;
+    private ObjectMapper objectMapper;
+
+
+    public EmployeeRESTController(){
+
+    }
+
+    @Autowired
+    public EmployeeRESTController(EmployeeService employeeService, ObjectMapper objectMapper) {
+        this.employeeService = employeeService;
+        this.objectMapper = objectMapper;
+    }
+
 
     // Create Get mapping for "/employees"
     @GetMapping("/employees")
@@ -49,4 +65,25 @@ public class EmployeeRESTController {
         employeeService.deleteById(employeeId);
     }
 
+    @PatchMapping("/employees/{employeeId}")
+    public Employee patchEmployee(@PathVariable int employeeId, @RequestBody Map<String, Object> patchPayload){
+
+        Employee emp = employeeService.findById(employeeId);
+
+        if(emp == null) throw new RuntimeException("Employee id not found - " + employeeId);
+
+        if(patchPayload.containsKey("id")) throw  new RuntimeException("Employee id not allowed in request body - " + employeeId);
+
+        return employeeService.save(apply(patchPayload, emp));
+    }
+
+    private Employee apply(Map<String, Object> patchPayload, Employee employee){
+
+        ObjectNode employeeNode = objectMapper.convertValue(employee, ObjectNode.class);
+        ObjectNode patchNode = objectMapper.convertValue(patchPayload, ObjectNode.class);
+
+        employeeNode.setAll(patchNode);
+
+        return objectMapper.convertValue(employeeNode, Employee.class);
+    }
 }
