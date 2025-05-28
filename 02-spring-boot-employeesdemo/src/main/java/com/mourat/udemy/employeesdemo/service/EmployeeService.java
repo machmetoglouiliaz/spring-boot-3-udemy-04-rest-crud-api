@@ -1,17 +1,14 @@
-package com.mourat.udemy.employeesdemo.dao;
+package com.mourat.udemy.employeesdemo.service;
 
 import com.mourat.udemy.employeesdemo.entity.Employee;
 
 import java.util.List;
 
-
-public interface EmployeeDAO {
-
-    // declare header for CRUD methods
+public interface EmployeeService {
 
     List<Employee> findAll();
 
-    Employee find(int id);
+    Employee findById(int id);
 
     Employee save(Employee employee);
 
