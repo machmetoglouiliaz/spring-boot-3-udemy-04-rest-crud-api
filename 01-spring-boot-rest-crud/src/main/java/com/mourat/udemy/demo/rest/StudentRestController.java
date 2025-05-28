@@ -1,7 +1,5 @@
 package com.mourat.udemy.demo.rest;
 
-import com.mourat.udemy.demo.StudentErrorResponse;
-import com.mourat.udemy.demo.StudentNotFoundException;
 import com.mourat.udemy.demo.entity.Student;
 import jakarta.annotation.PostConstruct;
 import org.springframework.http.HttpStatus;

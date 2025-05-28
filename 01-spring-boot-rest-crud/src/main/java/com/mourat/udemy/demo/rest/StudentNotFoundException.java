@@ -1,4 +1,4 @@
-package com.mourat.udemy.demo;
+package com.mourat.udemy.demo.rest;
 
 public class StudentNotFoundException extends RuntimeException{
 
